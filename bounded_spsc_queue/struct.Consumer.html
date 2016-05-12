@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Consumer` struct in crate `bounded_spsc_queue`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Consumer">
+
+    <title>bounded_spsc_queue::Consumer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>bounded_spsc_queue</a></p><script>window.sidebarCurrent = {name: 'Consumer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>bounded_spsc_queue</a>::<wbr><a class='struct' href=''>Consumer</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-30' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#68-70' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Consumer&lt;T&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>A handle to the queue which allows consuming values from the buffer</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class='struct' href='../bounded_spsc_queue/struct.Consumer.html' title='bounded_spsc_queue::Consumer'>Consumer</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-105' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#427-510' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.pop' class='method'><code>fn <a href='#method.pop' class='fnname'>pop</a>(&amp;self) -&gt; T</code></h4>
+<div class='docblock'><p>Pop a value off the queue.</p>
+
+<p>If the buffer contains values, this method will execute immediately and return a value.
+If the buffer is empty, this method will block until a value becomes available.  The
+waiting strategy is a simple spin-wait. If you do not want a spin-wait burning CPU, you
+should call <code>try_push()</code> directly and implement a different waiting strategy.</p>
+
+<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> (_, <span class='ident'>consumer</span>) <span class='op'>=</span> <span class='ident'>make</span>(<span class='number'>100</span>);
+
+<span class='comment'>// Block until a value becomes available</span>
+<span class='kw'>let</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>consumer</span>.<span class='ident'>pop</span>();</pre>
+</div><h4 id='method.try_pop' class='method'><code>fn <a href='#method.try_pop' class='fnname'>try_pop</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;</code></h4>
+<div class='docblock'><p>Attempt to pop a value off the queue.</p>
+
+<p>This method does not block.  If the queue is empty, the method will return <code>None</code>.  If
+there is a value available, the method will return <code>Some(v)</code>, where <code>v</code> is the value
+being popped off the queue.</p>
+
+<h1 id='examples-1' class='section-header'><a href='#examples-1'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>bounded_spsc_queue</span>::<span class='op'>*</span>;
+
+<span class='kw'>let</span> (_, <span class='ident'>consumer</span>) <span class='op'>=</span> <span class='ident'>make</span>(<span class='number'>100</span>);
+
+<span class='comment'>// Attempt to pop a value off the queue</span>
+<span class='kw'>let</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>consumer</span>.<span class='ident'>try_pop</span>();
+<span class='kw'>match</span> <span class='ident'>t</span> {
+    <span class='prelude-val'>Some</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> {},      <span class='comment'>// Successfully popped a value</span>
+    <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {}          <span class='comment'>// Queue empty, try again later</span>
+}</pre>
+</div><h4 id='method.capacity' class='method'><code>fn <a href='#method.capacity' class='fnname'>capacity</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<div class='docblock'><p>Returns the total capacity of this queue</p>
+
+<p>This value represents the total capacity of the queue when it is full.  It does not
+represent the current usage.  For that, call <code>size()</code>.</p>
+
+<h1 id='examples-2' class='section-header'><a href='#examples-2'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> (_, <span class='ident'>consumer</span>) <span class='op'>=</span> <span class='ident'>make</span>(<span class='number'>100</span>);
+
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>consumer</span>.<span class='ident'>capacity</span>() <span class='op'>==</span> <span class='number'>100</span>);
+<span class='kw'>let</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>consumer</span>.<span class='ident'>pop</span>();
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>producer</span>.<span class='ident'>capacity</span>() <span class='op'>==</span> <span class='number'>100</span>);</pre>
+</div><h4 id='method.size' class='method'><code>fn <a href='#method.size' class='fnname'>size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<div class='docblock'><p>Returns the current size of the queue</p>
+
+<p>This value represents the current size of the queue.  This value can be from 0-<code>capacity</code>
+inclusive.</p>
+
+<h1 id='examples-3' class='section-header'><a href='#examples-3'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> (_, <span class='ident'>consumer</span>) <span class='op'>=</span> <span class='ident'>make</span>(<span class='number'>100</span>);
+
+<span class='comment'>//... producer pushes somewhere ...</span>
+
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>consumer</span>.<span class='ident'>size</span>() <span class='op'>==</span> <span class='number'>10</span>);
+<span class='ident'>consumer</span>.<span class='ident'>pop</span>();
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>producer</span>.<span class='ident'>size</span>() <span class='op'>==</span> <span class='number'>9</span>);</pre>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../bounded_spsc_queue/struct.Consumer.html' title='bounded_spsc_queue::Consumer'>Consumer</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-36' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#77' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;T&gt; !<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../bounded_spsc_queue/struct.Consumer.html' title='bounded_spsc_queue::Consumer'>Consumer</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-40' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#80' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "bounded_spsc_queue";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

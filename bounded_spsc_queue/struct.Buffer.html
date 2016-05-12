@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Buffer` struct in crate `bounded_spsc_queue`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Buffer">
+
+    <title>bounded_spsc_queue::Buffer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>bounded_spsc_queue</a></p><script>window.sidebarCurrent = {name: 'Buffer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>bounded_spsc_queue</a>::<wbr><a class='struct' href=''>Buffer</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-13' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#37-63' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Buffer&lt;T&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>The internal memory buffer used by the queue.</p>
+
+<p>Buffer holds a pointer to allocated memory which represents the bounded
+ring buffer, as well as a head and tail atomicUsize which the producer and consumer
+use to track location in the ring.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class='struct' href='../bounded_spsc_queue/struct.Buffer.html' title='bounded_spsc_queue::Buffer'>Buffer</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-44' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#83-218' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.try_pop' class='method'><code>fn <a href='#method.try_pop' class='fnname'>try_pop</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;</code></h4>
+<div class='docblock'><p>Attempt to pop a value off the buffer.</p>
+
+<p>If the buffer is empty, this method will not block.  Instead, it will return <code>None</code>
+signifying the buffer was empty.  The caller may then decide what to do next (e.g. spin-wait,
+sleep, process something else, etc)</p>
+
+<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='comment'>// Attempt to pop off a value</span>
+<span class='kw'>let</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>buffer</span>.<span class='ident'>try_pop</span>();
+<span class='kw'>match</span> <span class='ident'>t</span> {
+  <span class='prelude-val'>Some</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> {}, <span class='comment'>// Got a value</span>
+  <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {}     <span class='comment'>// Buffer empty, try again later</span>
+}</pre>
+</div><h4 id='method.pop' class='method'><code>fn <a href='#method.pop' class='fnname'>pop</a>(&amp;self) -&gt; T</code></h4>
+<div class='docblock'><p>Pop a value off the buffer.</p>
+
+<p>This method will block until the buffer is non-empty.  The waiting strategy is a simple
+spin-wait and will repeatedly call <code>try_pop()</code> until a value is available.  If you do not
+want a spin-wait burning CPU, you should call <code>try_pop()</code> directly and implement a different
+waiting strategy.</p>
+
+<h1 id='examples-1' class='section-header'><a href='#examples-1'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='comment'>// Block until a value is ready</span>
+<span class='kw'>let</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>buffer</span>.<span class='ident'>pop</span>();</pre>
+</div><h4 id='method.try_push' class='method'><code>fn <a href='#method.try_push' class='fnname'>try_push</a>(&amp;self, v: T) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;</code></h4>
+<div class='docblock'><p>Attempt to push a value onto the buffer.</p>
+
+<p>If the buffer is full, this method will not block.  Instead, it will return <code>Some(v)</code>, where
+<code>v</code> was the value attempting to be pushed onto the buffer.  If the value was successfully
+pushed onto the buffer, <code>None</code> will be returned signifying success.</p>
+
+<h1 id='examples-2' class='section-header'><a href='#examples-2'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='comment'>// Attempt to push a value onto the buffer</span>
+<span class='kw'>let</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>buffer</span>.<span class='ident'>try_push</span>(<span class='number'>123</span>);
+<span class='kw'>match</span> <span class='ident'>t</span> {
+  <span class='prelude-val'>Some</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> {}, <span class='comment'>// Buffer was full, try again later</span>
+  <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {}     <span class='comment'>// Value was successfully pushed onto the buffer</span>
+}</pre>
+</div><h4 id='method.push' class='method'><code>fn <a href='#method.push' class='fnname'>push</a>(&amp;self, v: T)</code></h4>
+<div class='docblock'><p>Push a value onto the buffer.</p>
+
+<p>This method will block until the buffer is non-full.  The waiting strategy is a simple
+spin-wait and will repeatedly call <code>try_push()</code> until the value can be added.  If you do not
+want a spin-wait burning CPU, you should call <code>try_push()</code> directly and implement a different
+waiting strategy.</p>
+
+<h1 id='examples-3' class='section-header'><a href='#examples-3'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='comment'>// Block until we can push this value onto the buffer</span>
+<span class='ident'>buffer</span>.<span class='ident'>try_push</span>(<span class='number'>123</span>);</pre>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../bounded_spsc_queue/struct.Buffer.html' title='bounded_spsc_queue::Buffer'>Buffer</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-28' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#65' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../bounded_spsc_queue/struct.Buffer.html' title='bounded_spsc_queue::Buffer'>Buffer</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-72' class='srclink' href='../src/bounded_spsc_queue/src/lib.rs.html#221-242' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>Handles deallocation of heap memory when the buffer is dropped</p>
+</div><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "bounded_spsc_queue";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
