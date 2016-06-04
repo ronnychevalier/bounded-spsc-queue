@@ -1,21 +1,22 @@
 
 #![feature(heap_api, oom, alloc, box_syntax, optin_builtin_traits)]
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[cfg(feature = "std")]
 extern crate core;
 extern crate alloc;
 
 #[cfg(feature = "benchmark")] extern crate criterion;
 #[cfg(feature = "benchmark")] extern crate time;
 
-
+use alloc::arc::Arc;
 use alloc::heap::{allocate, deallocate};
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::usize;
-use std::sync::Arc;
-use std::cell::Cell;
+
+use core::sync::atomic::{AtomicUsize, Ordering};
+use core::cell::Cell;
 use core::{mem, ptr};
 use core::mem::transmute;
-
 
 #[cfg(target_pointer_width = "32")]
 macro_rules! cacheline_pad { ($N:expr) => { 16 - $N } }

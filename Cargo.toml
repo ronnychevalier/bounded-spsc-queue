@@ -20,7 +20,8 @@ doctest = false
 
 [features]
 # no features by default
-default = []
+default = ["std"]
+std = []
 nightly = []
 #benchmark = ["criterion", "time"]
 
